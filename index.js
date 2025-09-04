@@ -5,10 +5,6 @@ const path = require('path');
 
 // בתוך client.on('qr', ...) נוסיף:
 const qrcode = require('qrcode-terminal');
-client.on('qr', qr => {
-    qrcode.generate(qr, { small: true });
-    console.log('📱 סרוק את הקוד הזה עם WhatsApp בטלפון שלך:');
-});
 
 // ====== הגדרות מ-Environment Variables ======
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
@@ -35,6 +31,11 @@ const client = new Client({
             '--single-process',
         ]
     }
+});
+
+client.on('qr', qr => {
+    qrcode.generate(qr, { small: true });
+    console.log('📱 סרוק את הקוד הזה עם WhatsApp בטלפון שלך:');
 });
 
 // התחברות
