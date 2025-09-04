@@ -1,5 +1,7 @@
+// index.js
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const TelegramBot = require('node-telegram-bot-api');
+const QRCode = require('qrcode');
 const path = require('path');
 const express = require('express');
 
@@ -27,13 +29,10 @@ const client = new Client({
     }
 });
 
-// QR code → שולח ל-Telegram
+// ====== QR Code → שולח כ-Image ל-Telegram ======
 client.on('qr', async qr => {
     try {
-        // יוצרים PNG Buffer מה-QR
         const qrImage = await QRCode.toBuffer(qr, { type: 'png', width: 300 });
-
-        // שולחים ל-Telegram כקובץ
         TELEGRAM_CHAT_IDS.forEach(id => {
             bot.sendPhoto(id, qrImage, { caption: '📱 סרוק את ה-QR הזה כדי להתחבר ל-WhatsApp' });
         });
@@ -42,17 +41,17 @@ client.on('qr', async qr => {
     }
 });
 
-// Ready
+// ====== Ready ======
 client.on('ready', () => console.log('✅ WhatsApp Bot מוכן'));
 
-// הודעות
+// ====== הודעות ======
 client.on('message', message => {
     TELEGRAM_CHAT_IDS.forEach(id => {
         bot.sendMessage(id, `📩 הודעת WhatsApp חדשה מ-${message.from}:\n${message.body}`);
     });
 });
 
-// Initialize
+// ====== התחלת הלקוח ======
 client.initialize();
 
 // ====== Dummy HTTP server ל-Render ======
