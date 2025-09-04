@@ -44,4 +44,12 @@ client.on('ready', () => {
 
 // קבלת הודעות חדשות
 client.on('message', message => {
-    console.log(`📩 הודעה מ-${message.from}: ${me
+    console.log(`📩 הודעה מ-${message.from}: ${message.body}`);
+    
+    TELEGRAM_CHAT_IDS.forEach(id => {
+        bot.sendMessage(id, `📩 הודעת WhatsApp חדשה מ-${message.from}:\n${message.body}`);
+    });
+});
+
+// התחלה
+client.initialize();
