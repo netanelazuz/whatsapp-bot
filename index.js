@@ -1,24 +1,19 @@
-// index.js
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const TelegramBot = require('node-telegram-bot-api');
-const path = require('path');
-
-// בתוך client.on('qr', ...) נוסיף:
 const qrcode = require('qrcode-terminal');
+const path = require('path');
+const express = require('express');
 
-// ====== הגדרות מ-Environment Variables ======
+// ====== Environment Variables ======
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const TELEGRAM_CHAT_IDS = process.env.TELEGRAM_CHAT_IDS ? process.env.TELEGRAM_CHAT_IDS.split(',') : [];
 
-// יצירת בוט טלגרם
+// ====== Telegram Bot ======
 const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: false });
 
-// יצירת לקוח WhatsApp
+// ====== WhatsApp Client ======
 const client = new Client({
-    authStrategy: new LocalAuth({
-        // Render Free Disk
-        dataPath: path.resolve('./whatsapp-session')
-    }),
+    authStrategy: new LocalAuth({ dataPath: path.resolve('./whatsapp-session') }),
     puppeteer: {
         headless: true,
         args: [
@@ -33,24 +28,28 @@ const client = new Client({
     }
 });
 
+// QR code
 client.on('qr', qr => {
     qrcode.generate(qr, { small: true });
     console.log('📱 סרוק את הקוד הזה עם WhatsApp בטלפון שלך:');
 });
 
-// התחברות
+// Ready
 client.on('ready', () => {
     console.log('✅ WhatsApp Bot מוכן');
 });
 
-// קבלת הודעות חדשות
+// הודעות
 client.on('message', message => {
     console.log(`📩 הודעה מ-${message.from}: ${message.body}`);
-    
-    TELEGRAM_CHAT_IDS.forEach(id => {
-        bot.sendMessage(id, `📩 הודעת WhatsApp חדשה מ-${message.from}:\n${message.body}`);
-    });
+    TELEGRAM_CHAT_IDS.forEach(id => bot.sendMessage(id, `📩 הודעת WhatsApp חדשה מ-${message.from}:\n${message.body}`));
 });
 
-// התחלה
+// Initialize
 client.initialize();
+
+// ====== Dummy HTTP server ל-Render ======
+const PORT = process.env.PORT || 3000;
+const app = express();
+app.get('/', (req, res) => res.send('WhatsApp bot running ✅'));
+app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
