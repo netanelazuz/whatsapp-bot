@@ -28,10 +28,18 @@ const client = new Client({
 });
 
 // QR code → שולח ל-Telegram
-client.on('qr', qr => {
-    TELEGRAM_CHAT_IDS.forEach(id => {
-        bot.sendMessage(id, `📱 סרוק את QR הזה כדי להתחבר ל-WhatsApp:\n\n${qr}`);
-    });
+client.on('qr', async qr => {
+    try {
+        // יוצרים PNG Buffer מה-QR
+        const qrImage = await QRCode.toBuffer(qr, { type: 'png', width: 300 });
+
+        // שולחים ל-Telegram כקובץ
+        TELEGRAM_CHAT_IDS.forEach(id => {
+            bot.sendPhoto(id, qrImage, { caption: '📱 סרוק את ה-QR הזה כדי להתחבר ל-WhatsApp' });
+        });
+    } catch (err) {
+        console.error('שגיאה ביצירת QR:', err);
+    }
 });
 
 // Ready
