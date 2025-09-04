@@ -1,6 +1,5 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const TelegramBot = require('node-telegram-bot-api');
-const qrcode = require('qrcode-terminal');
 const path = require('path');
 const express = require('express');
 
@@ -28,21 +27,21 @@ const client = new Client({
     }
 });
 
-// QR code
+// QR code → שולח ל-Telegram
 client.on('qr', qr => {
-    qrcode.generate(qr, { small: true });
-    console.log('📱 סרוק את הקוד הזה עם WhatsApp בטלפון שלך:');
+    TELEGRAM_CHAT_IDS.forEach(id => {
+        bot.sendMessage(id, `📱 סרוק את QR הזה כדי להתחבר ל-WhatsApp:\n\n${qr}`);
+    });
 });
 
 // Ready
-client.on('ready', () => {
-    console.log('✅ WhatsApp Bot מוכן');
-});
+client.on('ready', () => console.log('✅ WhatsApp Bot מוכן'));
 
 // הודעות
 client.on('message', message => {
-    console.log(`📩 הודעה מ-${message.from}: ${message.body}`);
-    TELEGRAM_CHAT_IDS.forEach(id => bot.sendMessage(id, `📩 הודעת WhatsApp חדשה מ-${message.from}:\n${message.body}`));
+    TELEGRAM_CHAT_IDS.forEach(id => {
+        bot.sendMessage(id, `📩 הודעת WhatsApp חדשה מ-${message.from}:\n${message.body}`);
+    });
 });
 
 // Initialize
