@@ -3,6 +3,13 @@ const { Client, LocalAuth } = require('whatsapp-web.js');
 const TelegramBot = require('node-telegram-bot-api');
 const path = require('path');
 
+// בתוך client.on('qr', ...) נוסיף:
+const qrcode = require('qrcode-terminal');
+client.on('qr', qr => {
+    qrcode.generate(qr, { small: true });
+    console.log('📱 סרוק את הקוד הזה עם WhatsApp בטלפון שלך:');
+});
+
 // ====== הגדרות מ-Environment Variables ======
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const TELEGRAM_CHAT_IDS = process.env.TELEGRAM_CHAT_IDS ? process.env.TELEGRAM_CHAT_IDS.split(',') : [];
