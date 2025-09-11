@@ -19,6 +19,7 @@ const client = new Client({
   authStrategy: new LocalAuth({ dataPath: path.resolve('./whatsapp-session') }),
   puppeteer: {
     headless: true,
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
@@ -27,9 +28,11 @@ const client = new Client({
       '--no-first-run',
       '--no-zygote',
       '--single-process',
-    ],
-  },
+      '--disable-gpu'
+    ]
+  }
 });
+
 
 // ====== QR Code → שולח כ-Image ל-Telegram ======
 client.on('qr', async (qr) => {
