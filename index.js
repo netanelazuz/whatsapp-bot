@@ -51,6 +51,25 @@ client.on('message', message => {
     });
 });
 
+// ====== SMS Webhook ======
+// דוגמה: אפליקציה בטלפון / ספק SMS ישלחו POST לכתובת הזו
+// גוף הבקשה צריך להכיל { from: "...", message: "..." }
+app.use(express.json());
+
+app.post('/incoming-sms', (req, res) => {
+    const { from, message } = req.body;
+    if (!from || !message) {
+        return res.status(400).send('Missing "from" or "message" field');
+    }
+
+    TELEGRAM_CHAT_IDS.forEach(id => {
+        bot.sendMessage(id, `📩 SMS חדש מ-${from}:\n${message}`);
+    });
+
+    res.send('OK');
+});
+
+
 // ====== התחלת הלקוח ======
 client.initialize();
 
