@@ -74,19 +74,20 @@ app.use(express.json());
 // Route ראשי
 app.get('/', (req, res) => res.send('WhatsApp bot running ✅'));
 
-// ====== SMS Webhook ======
 app.post('/incoming-sms', (req, res) => {
   const { from, message } = req.body;
   if (!from || !message) {
-    return res.status(400).send('Missing "from" or "message" field');
+    return res.status(400).json({ success: false, error: 'Missing "from" or "message"' });
   }
 
   TELEGRAM_CHAT_IDS.forEach((id) => {
     bot.sendMessage(id, `📩 SMS חדש מ-${from}:\n${message}`);
   });
 
-  res.send('OK');
+  // במקום res.send('OK');
+  res.json({ success: true, status: "SMS forwarded to Telegram" });
 });
+
 
 // ====== הפעלת השרת ======
 app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
