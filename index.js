@@ -21,16 +21,15 @@ const client = new Client({
     headless: true,
     executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
     args: [
-  '--no-sandbox',
-  '--disable-setuid-sandbox',
-  '--disable-dev-shm-usage',
-  '--disable-accelerated-2d-canvas',
-  '--no-first-run',
-  '--no-zygote',
-  '--single-process',
-  '--disable-gpu',
-  '--disable-software-rasterizer'
-  ]
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--no-first-run',
+      '--no-zygote',
+      '--single-process',
+      '--disable-gpu'
+    ]
   }
 });
 
@@ -75,20 +74,19 @@ app.use(express.json());
 // Route ראשי
 app.get('/', (req, res) => res.send('WhatsApp bot running ✅'));
 
+// ====== SMS Webhook ======
 app.post('/incoming-sms', (req, res) => {
   const { from, message } = req.body;
   if (!from || !message) {
-    return res.status(400).json({ success: false, error: 'Missing "from" or "message"' });
+    return res.status(400).send('Missing "from" or "message" field');
   }
 
   TELEGRAM_CHAT_IDS.forEach((id) => {
     bot.sendMessage(id, `📩 SMS חדש מ-${from}:\n${message}`);
   });
 
-  // במקום res.send('OK');
-  res.json({ success: true, status: "SMS forwarded to Telegram" });
+  res.send('OK');
 });
-
 
 // ====== הפעלת השרת ======
 app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
