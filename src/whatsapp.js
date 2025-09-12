@@ -1,9 +1,11 @@
-import qrcode from "qrcode-terminal";
+import qrcodeTerminal from "qrcode-terminal";
+import QRCode from "qrcode";
 import pkg from "whatsapp-web.js";
-import { sendToTelegram, sendQrToTelegram } from "./bot.js";
+import { sendToTelegram, sendQrPngToTelegram } from "./bot.js";
 
 const { Client, LocalAuth } = pkg;
 
+// If you’re on Render, keeping these flags is helpful:
 const client = new Client({
   authStrategy: new LocalAuth(),
   puppeteer: {
@@ -19,18 +21,30 @@ const client = new Client({
   }
 });
 
+client.on("qr", async (qr) => {
+  // Optional: still show in terminal (useful for local dev)
+  qrcodeTerminal.generate(qr, { small: true });
 
-client.on("qr", qr => {
-  qrcode.generate(qr, { small: true });
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qr)}`;
-  sendQrToTelegram(qrUrl);
+  try {
+    // Create a PNG buffer from the QR string
+    const pngBuffer = await QRCode.toBuffer(qr, {
+      type: "png",
+      width: 512,            // nice and crisp
+      errorCorrectionLevel: "M"
+    });
+
+    // Send the PNG directly to Telegram
+    sendQrPngToTelegram(pngBuffer, "📱 סרקו כדי להתחבר ל־WhatsApp");
+  } catch (err) {
+    sendToTelegram(`⚠️ Failed to generate/send QR PNG: ${err.message}`);
+  }
 });
 
 client.on("ready", () => {
   sendToTelegram("✅ WhatsApp מחובר ומוכן!");
 });
 
-client.on("message", msg => {
+client.on("message", (msg) => {
   const from = msg.from;
   const text = msg.body;
   const forward = `💬 WhatsApp\nFrom: ${from}\n\n${text}`;
