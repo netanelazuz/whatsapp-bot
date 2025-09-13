@@ -45,8 +45,9 @@ client.on("ready", () => {
 });
 
 client.on("message", (msg) => {
+  console.log("📥 Incoming WhatsApp message:", msg);
   const from = msg.from;
-  const text = msg.body;
+  const text = msg.body || "<no text>";
   const forward = `💬 WhatsApp\nFrom: ${from}\n\n${text}`;
   sendToTelegram(forward);
 });
